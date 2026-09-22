@@ -1,0 +1,82 @@
+name: Build personal extension
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # The repository's real extension-host smoke test requires macOS.
+    runs-on: macos-14
+    timeout-minutes: 20
+    env:
+      VSCE_STORE: file
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      - name: Install the locked dependencies without install scripts
+        run: npm ci --ignore-scripts
+
+      - run: npm audit
+      - run: npm test
+      - run: npx tsc --noEmit
+
+      - name: Assign the personal package identity
+        env:
+          FORK_OWNER: ${{ github.repository_owner }}
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const manifest = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const owner = process.env.FORK_OWNER.toLowerCase();
+          if (!/^[a-z0-9][a-z0-9-]*$/.test(owner)) {
+            throw new Error('Invalid fork owner for personal publisher');
+          }
+          manifest.publisher = `${owner}-personal`;
+          manifest.displayName = 'Window Colors (Personal)';
+          // All tests, including the canonical upstream publish identity check,
+          // have passed above. Only the disposable build manifest is changed.
+          manifest.scripts['vscode:prepublish'] = 'npm run compile';
+          fs.writeFileSync('package.json', JSON.stringify(manifest, null, 2) + '\n');
+          NODE
+
+      - name: Package the personal VSIX
+        run: npm run package:vsix -- --out "$RUNNER_TEMP/window-colors-personal.vsix"
+
+      - name: Download VS Code for the extension-host smoke test
+        run: |
+          curl --fail --location --retry 3 \
+            https://update.code.visualstudio.com/latest/darwin-universal/stable \
+            --output "$RUNNER_TEMP/vscode.zip"
+          ditto -x -k "$RUNNER_TEMP/vscode.zip" "$RUNNER_TEMP/vscode"
+
+      - name: Verify activation, settings migration, and shutdown cleanup
+        env:
+          VSCODE_APP: ${{ runner.temp }}/vscode/Visual Studio Code.app
+        run: bash scripts/smoke_extension_host.sh "$RUNNER_TEMP/window-colors-personal.vsix"
+
+      - name: Record the package checksum and source commit
+        run: |
+          cd "$RUNNER_TEMP"
+          shasum -a 256 window-colors-personal.vsix > window-colors-personal.vsix.sha256
+          printf 'Source: https://github.com/%s/commit/%s\nBuild: https://github.com/%s/actions/runs/%s\n' \
+            "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" > BUILD.txt
+
+      - name: Save the tested personal build
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: window-colors-personal-${{ github.run_number }}
+          path: |
+            ${{ runner.temp }}/window-colors-personal.vsix
+            ${{ runner.temp }}/window-colors-personal.vsix.sha256
+            ${{ runner.temp }}/BUILD.txt
+          if-no-files-found: error
+          retention-days: 30
