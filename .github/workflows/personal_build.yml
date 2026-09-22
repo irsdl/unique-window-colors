@@ -57,11 +57,20 @@ jobs:
             https://update.code.visualstudio.com/latest/darwin-universal/stable \
             --output "$RUNNER_TEMP/vscode.zip"
           ditto -x -k "$RUNNER_TEMP/vscode.zip" "$RUNNER_TEMP/vscode"
+          app=$(find "$RUNNER_TEMP/vscode" -maxdepth 1 -type d -name '*.app' -print -quit)
+          test -n "$app"
+          echo "VSCODE_APP=$app" >> "$GITHUB_ENV"
+          ls -l "$app/Contents/MacOS"
 
       - name: Verify activation, settings migration, and shutdown cleanup
-        env:
-          VSCODE_APP: ${{ runner.temp }}/vscode/Visual Studio Code.app
         run: bash scripts/smoke_extension_host.sh "$RUNNER_TEMP/window-colors-personal.vsix"
+
+      - name: Show smoke-test launch diagnostics on failure
+        if: failure()
+        run: |
+          if [ -f /tmp/uwc-smoke/launch.log ]; then
+            cat /tmp/uwc-smoke/launch.log
+          fi
 
       - name: Record the package checksum and source commit
         run: |

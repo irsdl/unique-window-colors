@@ -28,7 +28,9 @@ set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VSCODE_APP="${VSCODE_APP:-/Applications/Visual Studio Code.app}"
-ELECTRON="$VSCODE_APP/Contents/MacOS/Electron"
+# Read the bundle's declared executable: newer VS Code builds can rename it.
+ELECTRON_NAME=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$VSCODE_APP/Contents/Info.plist" 2>/dev/null || true)
+ELECTRON="$VSCODE_APP/Contents/MacOS/${ELECTRON_NAME:-Electron}"
 CODE_CLI="$VSCODE_APP/Contents/Resources/app/bin/code"
 
 # Deliberately short: see gotcha 3.
@@ -168,7 +170,7 @@ check "command center foreground set"           '"commandCenter.foreground"' pre
 
 echo "==> closing the window cleanly (triggers dispose)"
 MAIN=$(ps -eo pid,command | grep -F "$BASE/data" | grep -v grep \
-       | grep "MacOS/Electron" | grep -v "Helper" | awk '{print $1}' | head -1)
+       | grep -F "$ELECTRON" | grep -v "Helper" | awk '{print $1}' | head -1)
 if [ -n "$MAIN" ]; then
   kill -TERM "$MAIN"
   for _ in $(seq 1 30); do
