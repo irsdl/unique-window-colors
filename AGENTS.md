@@ -14,6 +14,49 @@ npx tsc --noEmit
 Allowed without asking: read files, tsc --noEmit
 Ask first: npm install, vsce package, git push, deleting files
 
+## Dependency policy
+
+Apply this policy before installing, adding, upgrading, or releasing dependencies,
+including development tooling and transitive packages in `package-lock.json`.
+
+Run `npm run deps:check` before installation and release. It requires network
+access but no installed dependencies. It enforces registry metadata checks and
+a full vulnerability audit; it does not replace the support/reputation review
+below. See `DEPENDENCY_REVIEW.md` for current blockers and evidence, and
+`dependency-policy.json` for exact-version security-fix exceptions. Never remove
+or bypass a failing gate to obtain a successful build.
+
+- Dependencies must have zero known vulnerabilities at any severity. Check the
+  exact locked versions with a current `npm audit` covering both production and
+  development dependencies, and review relevant upstream security advisories.
+  Resolve findings by updating, replacing, or removing the affected dependency;
+  do not suppress findings or exclude development dependencies to obtain a pass.
+  A failed or unavailable audit is not a clean result. A clean audit establishes
+  no known vulnerabilities, not a guarantee that undiscovered flaws do not exist.
+- Use well-known, reputable, supported packages with a verifiable upstream
+  repository and maintainer history. Check maintenance status, deprecation
+  notices, and support for the exact release line; popularity alone is not
+  sufficient. Do not introduce or silently retain unsupported dependencies.
+  Flag existing violations and propose a supported replacement or upgrade.
+- Each selected package version must have been published at least one month
+  ago (use a minimum of 31 elapsed days). Verify the exact version's publication
+  timestamp in registry metadata; the package's creation date or repository's
+  latest commit date is not evidence of release age. This also applies to newly
+  resolved transitive versions when updating the lockfile.
+- The only exception to the release-age rule is a version that fixes a known
+  vulnerability. Record the advisory or CVE, the affected and fixed versions,
+  and why the newer release is needed. This exception does not waive the
+  reputation, support, vulnerability, or runtime-compatibility requirements.
+- Use the committed lockfile and integrity hashes. Prefer `npm ci --ignore-scripts`
+  for installation; review any necessary lifecycle script before enabling it.
+  Do not silently regenerate the lockfile or use a forced audit fix to bypass
+  review. Existing installation approval requirements still apply.
+- Report the sources, versions, release dates, audit result, and any justified
+  security-fix exception when changing dependencies. If compliance cannot be
+  established, explain the gap rather than claiming the dependency is safe.
+  Run the required tests and type check after dependency changes, and preserve
+  the runtime floor documented below.
+
 ## Colour model work
 
 `src/color_model.ts` is the single owner for foreground derivation, contrast,

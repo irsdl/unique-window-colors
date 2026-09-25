@@ -23,7 +23,8 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm run deps:check
+      - run: npm ci --ignore-scripts
       - run: npm test
       - run: npx tsc --noEmit
 
@@ -35,7 +36,8 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm run deps:check
+      - run: npm ci --ignore-scripts
       - run: npm audit
       - run: npm run package:vsix -- --out /tmp/window-colors-ci.vsix
 
@@ -51,10 +53,11 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm run deps:check
+      - run: npm ci --ignore-scripts
       - run: npm run compile
       # Drop dev dependencies so only what ships is checked.
-      - run: npm prune --omit=dev
+      - run: npm prune --omit=dev --ignore-scripts
       - uses: actions/setup-node@v4
         with:
           node-version: '14.16'

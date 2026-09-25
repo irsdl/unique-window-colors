@@ -1,5 +1,28 @@
 # Release checklist
 
+## Personal fork distribution
+
+This checkout builds `irsdl-personal.unique-window-colors` by default, including
+local `npm run package:vsix -- --out <path>` builds. Never distribute a fork under
+the upstream `stuart.unique-window-colors` identity: Marketplace updates for that
+ID can replace it. Keep the personal ID stable between reviewed releases.
+
+- [ ] Run `npm test` and `npx tsc --noEmit` before packaging.
+- [ ] Verify all locked dependencies against the [dependency policy](AGENTS.md#dependency-policy),
+      including support, release age, and zero known vulnerabilities.
+- [ ] Run `npm run deps:check` and resolve the blockers in
+      [the dependency review](DEPENDENCY_REVIEW.md) before installing or packaging.
+- [ ] Build with **Build personal extension**, or package locally and run the
+      extension-host smoke test below before distribution.
+- [ ] Inspect the VSIX's `extension/package.json` and `extension.vsixmanifest`:
+      publisher must be `irsdl-personal`, name/ID `unique-window-colors`.
+- [ ] Include the README's migration steps for users of old upstream-identity
+      VSIX files. Those installations cannot be renamed by a repository change.
+
+The remaining registry checklist describes the inherited upstream release
+process. It is not the personal fork's distribution path. The Open VSX workflow
+is restricted to the original repository and requires the `stuart` identity.
+
 ## Purpose
 
 Publish the foreground-contrast and unified inactive-bar fixes while preserving
@@ -19,10 +42,14 @@ behavior is owned by `src/color_model.ts` and its tests.
 
 ## Before packaging
 
-- [ ] Run `npm ci` from a clean checkout.
+- [ ] Verify the [dependency policy](AGENTS.md#dependency-policy), including
+      support, release age, and any documented security-fix exception.
+- [ ] Run `npm run deps:check`; do not proceed while it fails.
+- [ ] Run `npm ci --ignore-scripts` from a clean checkout.
 - [ ] Run `npm test`.
 - [ ] Run `npx tsc --noEmit`.
-- [ ] Run `npm audit` and resolve runtime or release-tooling vulnerabilities.
+- [ ] Run `npm audit` and resolve all findings, including runtime, development,
+      and transitive dependencies at every severity.
 - [ ] Confirm the GitHub `CI` workflow is green on the release commit.
 - [ ] Review `git diff` and update the version and changelog.
 

@@ -1,0 +1,28 @@
+{
+  "securityFixExceptions": {
+    "fast-uri@3.1.8": {
+      "advisory": "https://github.com/fastify/fast-uri/security/advisories/GHSA-hrr3-gc8f-f4qj",
+      "affectedVersions": ">=3.0.0 <3.1.8",
+      "fixedVersion": "3.1.8",
+      "reason": "The current 3.x security fix prevents host-case normalization bypass; older 3.x releases remain vulnerable."
+    },
+    "js-yaml@4.3.2": {
+      "advisory": "https://github.com/nodeca/js-yaml/security/advisories/GHSA-2883-xcg3-v3hh",
+      "affectedVersions": ">=4.0.0 <4.3.2",
+      "fixedVersion": "4.3.2",
+      "reason": "The supported 4.x backport fixes CPU exhaustion through empty YAML merge sources; downgrading restores the vulnerability."
+    },
+    "qs@6.16.0": {
+      "advisory": "https://github.com/ljharb/qs/security/advisories/GHSA-4mjr-xmp4-gh2g",
+      "affectedVersions": ">=2.2.5 <=6.15.3",
+      "fixedVersion": "6.16.0",
+      "reason": "Fixes an attacker-controlled isBuffer denial of service; the preceding release is affected."
+    }
+  },
+  "unsupportedPackages": {
+    "keytar": {
+      "source": "https://github.com/atom/node-keytar",
+      "reason": "Upstream was archived on 2022-12-15. Replace the parent packaging tool; do not waive this as an optional dependency."
+    }
+  }
+}

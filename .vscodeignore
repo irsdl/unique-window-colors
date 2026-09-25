@@ -1,5 +1,8 @@
 .vscode/**
 .github/**
+.audit-cache/**
+dependency-policy.json
+DEPENDENCY_REVIEW.md
 .vscode-test/**
 out/test/**
 out/**/*.map

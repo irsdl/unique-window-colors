@@ -3,6 +3,18 @@ All notable changes to the "unique-window-colors" extension will be documented i
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [Unreleased]
+
+- Enforce dependency release age, documented security exceptions, registry
+  integrity, maintenance blockers, and a full vulnerability audit before CI
+  installation and VSIX packaging. Record the current tooling blockers in
+  `DEPENDENCY_REVIEW.md`.
+- Give local fork builds the same `irsdl-personal.unique-window-colors` identity
+  as personal workflow builds, preventing original Marketplace updates from
+  replacing the fork. Display the fork as Window Colors (Personal).
+- Restrict inherited Open VSX publishing to the original repository and identity,
+  and document migration from previously distributed upstream-identity VSIX files.
+
 ## [1.2.11] - 2026-08-08
 
 - Derive the unfocused title bar from the focused one instead of matching the

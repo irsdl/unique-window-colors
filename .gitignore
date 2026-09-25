@@ -1,5 +1,6 @@
 out
 .test-out
+.audit-cache/
 node_modules
 .vscode-test/
 *.vsix

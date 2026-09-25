@@ -22,6 +22,9 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Check dependency policy before installing
+        run: npm run deps:check
+
       - name: Install the locked dependencies without install scripts
         run: npm ci --ignore-scripts
 
@@ -29,25 +32,8 @@ jobs:
       - run: npm test
       - run: npx tsc --noEmit
 
-      - name: Assign the personal package identity
-        env:
-          FORK_OWNER: ${{ github.repository_owner }}
-        run: |
-          node <<'NODE'
-          const fs = require('fs');
-          const manifest = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-          const owner = process.env.FORK_OWNER.toLowerCase();
-          if (!/^[a-z0-9][a-z0-9-]*$/.test(owner)) {
-            throw new Error('Invalid fork owner for personal publisher');
-          }
-          manifest.publisher = `${owner}-personal`;
-          manifest.displayName = 'Window Colors (Personal)';
-          // All tests, including the canonical upstream publish identity check,
-          // have passed above. Only the disposable build manifest is changed.
-          manifest.scripts['vscode:prepublish'] = 'npm run compile';
-          fs.writeFileSync('package.json', JSON.stringify(manifest, null, 2) + '\n');
-          NODE
-
+      # The checked-in manifest owns the personal identity for local and CI builds.
+      # Packaging runs the same identity regression checks via vscode:prepublish.
       - name: Package the personal VSIX
         run: npm run package:vsix -- --out "$RUNNER_TEMP/window-colors-personal.vsix"
 

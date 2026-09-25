@@ -13,7 +13,8 @@ concurrency:
 
 jobs:
   publish:
-    if: ${{ !github.event.release.prerelease }}
+    # This inherited workflow publishes only the original extension, never forks.
+    if: ${{ github.repository == 'stuartcrobinson/unique-window-colors' && !github.event.release.prerelease }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,13 +26,15 @@ jobs:
           node-version: 20
           cache: npm
 
-      - run: npm ci
+      - run: npm run deps:check
+      - run: npm ci --ignore-scripts
 
       - name: Verify release identity
         shell: bash
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
+          node -e "const p = require('./package.json'); if (p.publisher !== 'stuart' || p.name !== 'unique-window-colors') throw new Error('Upstream publishing requires stuart.unique-window-colors');"
           package_version="$(node -p "require('./package.json').version")"
           expected_tag="v${package_version}"
           if [[ "${RELEASE_TAG}" != "${expected_tag}" ]]; then

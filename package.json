@@ -1,10 +1,10 @@
 {
   "name": "unique-window-colors",
-  "displayName": "Window Colors",
+  "displayName": "Window Colors (Personal)",
   "description": "Automatically adds a unique color to each window's activityBar and titleBar.",
   "icon": "img/icon_602.png",
   "version": "1.2.11",
-  "publisher": "stuart",
+  "publisher": "irsdl-personal",
   "author": {
     "name": "Stuart Robinson"
   },
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/stuartcrobinson/unique-window-colors"
+    "url": "https://github.com/irsdl/unique-window-colors"
   },
   "categories": [
     "Other",
@@ -105,7 +105,8 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm test && npm run compile",
+    "vscode:prepublish": "npm run deps:check && npm test && npm run compile",
+    "deps:check": "node scripts/check-dependencies.js && npm audit --include=prod --include=dev --include=optional --audit-level=info",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "test": "npm run preview:check && npm run test:unit",

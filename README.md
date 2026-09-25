@@ -1,6 +1,37 @@
-# Window Colors
+# Window Colors (Personal)
 
 Uniquely and automatically colors each VSCode window.
+
+## Fork identity and updates
+
+This fork is installed as `irsdl-personal.unique-window-colors`, displayed as
+**Window Colors (Personal)**. The original extension is
+`stuart.unique-window-colors`. VS Code uses
+[`publisher.name` as the extension ID](https://code.visualstudio.com/api/references/extension-manifest),
+so an update published for the original cannot replace this fork. Both local
+VSIX builds and the **Build personal extension** workflow use the checked-in
+fork identity. Keep that identity stable for future fork updates.
+
+If you previously installed a fork VSIX with the original identity:
+
+1. Disable the extension with ID `stuart.unique-window-colors`, then reload
+   VS Code. Uninstall that extension.
+2. Install the newly built fork VSIX using **Extensions: Install from VSIX...**.
+3. Check that **Window Colors (Personal)** has ID
+   `irsdl-personal.unique-window-colors` in its extension details.
+
+Do not leave both extensions enabled: they share commands and color settings.
+The fork continues to use existing `windowColors.*` settings and workspace
+colors. Update this fork by installing a newer reviewed fork VSIX. Previously
+distributed VSIX files retain their old identity and must be replaced; changing
+this repository cannot change an already installed copy. Builds from the
+personal workflow that already used `irsdl-personal` retain the same identity.
+
+For local packaging, use `npm run package:vsix -- --out <path>`. For GitHub
+artifacts, run **Build personal extension** and download its tested VSIX. The
+inherited Open VSX publishing workflow is restricted to the original repository
+and original identity; publishing a GitHub release in this fork does not publish
+to Open VSX.
 
 <img src="https://raw.githubusercontent.com/stuartcrobinson/unique-window-colors/master/img/live_dark_screenshot.png" alt="drawing" width="330"/> &nbsp;&nbsp;&nbsp;
 <img src="https://raw.githubusercontent.com/stuartcrobinson/unique-window-colors/master/img/live_light_screenshot.png" alt="drawing" width="330"/>
