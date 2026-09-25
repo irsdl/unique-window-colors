@@ -26,6 +26,14 @@ below. See `DEPENDENCY_REVIEW.md` for current blockers and evidence, and
 `dependency-policy.json` for exact-version security-fix exceptions. Never remove
 or bypass a failing gate to obtain a successful build.
 
+Owner-approved temporary exception (2026-09-25): the exact development packages
+`keytar@7.9.0`, `prebuild-install@7.1.3`, and `whatwg-encoding@3.1.1` may be used
+until `2026-10-15T18:53:40.922Z`, when VSCE 4 reaches the required release age.
+This waives only their known maintenance/deprecation blockers. The checker logs
+each use and rejects it at expiry. It does not waive vulnerability, source,
+integrity, release-age, or runtime checks. Do not extend the date or scope without
+explicit owner approval. The executable records are in `dependency-policy.json`.
+
 - Dependencies must have zero known vulnerabilities at any severity. Check the
   exact locked versions with a current `npm audit` covering both production and
   development dependencies, and review relevant upstream security advisories.

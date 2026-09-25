@@ -19,6 +19,26 @@
       "reason": "Fixes an attacker-controlled isBuffer denial of service; the preceding release is affected."
     }
   },
+  "maintenanceExceptions": {
+    "keytar@7.9.0": {
+      "approvedBy": "Repository owner, explicitly approved in this session on 2026-09-25",
+      "approvedAt": "2026-09-25T00:00:00Z",
+      "expiresAt": "2026-10-15T18:53:40.922Z",
+      "reason": "Temporary build-tool maintenance exception until VSCE 4 reaches the required release age. Zero known vulnerabilities remain mandatory."
+    },
+    "prebuild-install@7.1.3": {
+      "approvedBy": "Repository owner, explicitly approved in this session on 2026-09-25",
+      "approvedAt": "2026-09-25T00:00:00Z",
+      "expiresAt": "2026-10-15T18:53:40.922Z",
+      "reason": "Temporary build-tool maintenance exception until VSCE 4 reaches the required release age. Zero known vulnerabilities remain mandatory."
+    },
+    "whatwg-encoding@3.1.1": {
+      "approvedBy": "Repository owner, explicitly approved in this session on 2026-09-25",
+      "approvedAt": "2026-09-25T00:00:00Z",
+      "expiresAt": "2026-10-15T18:53:40.922Z",
+      "reason": "Temporary build-tool maintenance exception until VSCE 4 reaches the required release age. Zero known vulnerabilities remain mandatory."
+    }
+  },
   "unsupportedPackages": {
     "keytar": {
       "source": "https://github.com/atom/node-keytar",

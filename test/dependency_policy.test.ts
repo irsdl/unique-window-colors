@@ -46,6 +46,34 @@ describe('dependency policy enforcement', () => {
     }
   });
 
+  it('limits maintenance exceptions to approved versions, development dependencies, and dates', () => {
+    const data = metadata();
+    Object.assign(data.versions['1.0.0'], { deprecated: 'Unmaintained' });
+    const exception = {
+      approvedBy: 'Repository owner', approvedAt: '2026-09-25T00:00:00Z',
+      expiresAt: '2026-10-15T18:53:40.922Z', reason: 'Wait for replacement release maturity.',
+    };
+    const policy = {
+      maintenanceExceptions: { 'example@1.0.0': exception },
+      unsupportedPackages: { example: { reason: 'Archived' } },
+    };
+    const development = { ...locked, dev: true };
+    deepEqual(evaluatePackage('example', development, data, policy, now).errors, []);
+    equal(evaluatePackage('example', development, data, policy, now).maintenanceException, exception);
+    ok(evaluatePackage('example', locked, data, policy, now).errors.length, 'runtime is never waived');
+    ok(evaluatePackage('example', development, data, policy, Date.parse(exception.approvedAt) - 1).errors.length);
+    ok(evaluatePackage('example', development, data, policy, Date.parse(exception.expiresAt)).errors.length);
+    ok(evaluatePackage('different', development, data, policy, now).errors.length, 'other packages are not waived');
+    const otherVersion = { maintenanceExceptions: { 'example@0.9.0': exception } };
+    ok(evaluatePackage('example', development, data, otherVersion, now).errors.length);
+    ok(evaluatePackage('example', { ...development, integrity: 'wrong' }, data, policy, now).errors.length);
+    const young = metadata(1000);
+    Object.assign(young.versions['1.0.0'], { deprecated: 'Unmaintained' });
+    ok(evaluatePackage('example', development, young, policy, now).errors.length, 'release age is not waived');
+    exception.expiresAt = 'invalid';
+    ok(evaluatePackage('example', development, data, policy, now).errors.length);
+  });
+
   it('rejects unreviewable sources and missing integrity', () => {
     for (const resolved of ['http://registry.npmjs.org/file.tgz', 'https://other.example/file.tgz', 'file:../local']) {
       ok(evaluatePackage('example', { ...locked, resolved }, metadata(), {}, now).errors.length);

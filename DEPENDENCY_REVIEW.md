@@ -1,6 +1,10 @@
 # Dependency review — 2026-09-25
 
-**Status: blocked. The current dependency tree does not fully meet the policy.**
+**Status: builds permitted under an explicit, temporary owner-approved exception.**
+On 2026-09-25 the repository owner approved use of the three build dependencies
+below while waiting for VSCE 4 to mature. The exception expires automatically at
+**2026-10-15T18:53:40.922Z** and applies only to the exact development versions.
+All vulnerability, release-age, source, and integrity checks remain mandatory.
 No dependency versions or lockfile entries were changed during this review.
 
 ## Checks performed
@@ -11,10 +15,10 @@ No dependency versions or lockfile entries were changed during this review.
   registry. Publication dates were checked for the exact locked versions.
 - A fresh full `npm audit` returned zero known vulnerabilities at every severity.
 - Three versions younger than 31 days are actual security fixes, documented below.
-- The metadata check rejects the three maintenance violations below. A clean
-  vulnerability audit does not override those failures.
+- The three maintenance violations below are covered by the explicit exception,
+  not by the clean vulnerability audit. They become blockers again at expiry.
 
-## Maintenance blockers
+## Temporarily accepted maintenance blockers
 
 | Package | Locked version | Evidence | Dependency path |
 | --- | --- | --- | --- |
@@ -63,8 +67,9 @@ metadata check is followed by a full npm audit with an `info` threshold.
 
 The gate runs before all workflow installs and in `vscode:prepublish`, covering
 both local packaging and CI. CI installations disable lifecycle scripts. The
-current gate intentionally exits unsuccessfully until the blockers are resolved;
-do not remove the gate to release. No new VSIX was packaged during this review.
+gate logs every accepted maintenance exception and fails when it expires; do
+not remove the gate to release. The exception does not certify the maintenance
+status of the affected packages.
 
 Each run writes the complete source/version/date inventory and errors to
 `.audit-cache/dependency-policy.json`. This generated report is excluded from

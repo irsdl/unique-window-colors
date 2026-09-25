@@ -16,6 +16,14 @@ function evaluatePackage(name, locked, metadata, policy, now) {
   const repository = version?.repository?.url || version?.repository
     || metadata.repository?.url || metadata.repository || version?.homepage;
   const exception = policy.securityFixExceptions?.[`${name}@${locked.version}`];
+  const maintenance = policy.maintenanceExceptions?.[`${name}@${locked.version}`];
+  // Owner-approved, exact-version waivers apply only to build tooling and expire
+  // automatically. No waiver changes the release-age, integrity, or audit gates.
+  const maintenanceException = locked.dev === true
+    && typeof maintenance?.approvedBy === 'string' && maintenance.approvedBy.trim()
+    && typeof maintenance?.reason === 'string' && maintenance.reason.trim()
+    && Date.parse(maintenance.approvedAt) <= now
+    && now < Date.parse(maintenance.expiresAt) ? maintenance : undefined;
   let securityFixException;
 
   if (!version) errors.push('Exact locked version is missing from registry metadata');
@@ -31,10 +39,10 @@ function evaluatePackage(name, locked, metadata, policy, now) {
       errors.push('Release is less than 31 days old without a documented security fix');
     }
   }
-  if (version?.deprecated || locked.deprecated) {
+  if ((version?.deprecated || locked.deprecated) && !maintenanceException) {
     errors.push(`Deprecated: ${version?.deprecated || locked.deprecated}`);
   }
-  if (policy.unsupportedPackages?.[name]) {
+  if (policy.unsupportedPackages?.[name] && !maintenanceException) {
     errors.push(`Unsupported: ${policy.unsupportedPackages[name].reason}`);
   }
   if (typeof repository !== 'string' || !repository.trim()) {
@@ -55,7 +63,7 @@ function evaluatePackage(name, locked, metadata, policy, now) {
     errors.push('Missing integrity hash or mismatch with registry');
   }
   return { name, version: locked.version, published, repository,
-    source: locked.resolved, securityFixException, errors };
+    source: locked.resolved, securityFixException, maintenanceException, errors };
 }
 
 async function checkLockfile(lock, policy, getMetadata, now = Date.now()) {
@@ -108,6 +116,9 @@ async function main() {
   }, null, 2) + '\n');
   for (const result of failed) {
     console.error(`${result.name}@${result.version}: ${result.errors.join('; ')}`);
+  }
+  for (const result of results.filter(result => result.maintenanceException)) {
+    console.warn(`Approved maintenance exception: ${result.name}@${result.version}; expires ${result.maintenanceException.expiresAt}`);
   }
   console.log(`Checked ${results.length} locked entries; ${failed.length} failed. Report: .audit-cache/dependency-policy.json`);
   if (failed.length) process.exitCode = 1;

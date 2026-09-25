@@ -5,6 +5,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+- Record the owner's temporary maintenance exception for three exact build-tool
+  dependencies until 15 October 2026, with automatic expiry and mandatory
+  vulnerability checks.
 - Enforce dependency release age, documented security exceptions, registry
   integrity, maintenance blockers, and a full vulnerability audit before CI
   installation and VSIX packaging. Record the current tooling blockers in
